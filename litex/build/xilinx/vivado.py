@@ -307,89 +307,21 @@ class XilinxVivadoToolchain(GenericToolchain):
                 if disable_constraints:
                     tcl.append(f"set_property is_enabled false [get_files -of_objects [get_files {filename_tcl}] -filter {{FILE_TYPE== XDC}}]")
 
-        # Add constraints
-        tcl.append("\n# Add constraints\n")
-        tcl.append(f"read_xdc {self._build_name}.xdc")
-        tcl.append(f"set_property PROCESSING_ORDER EARLY [get_files {self._build_name}.xdc]")
-
-        # Add pre-synthesis commands
-        tcl.append("\n# Add pre-synthesis commands\n")
-        tcl.extend(c.format(build_name=self._build_name) for c in self.pre_synthesis_commands.resolve(self._vns))
-
-        # Synthesis
-        if self._synth_mode == "vivado":
-            tcl.append("\n# Synthesis\n")
-            synth_cmd = f"synth_design -directive {self.vivado_synth_directive} -top {self._build_name} -part {self.platform.device}"
-            if self.platform.verilog_include_paths:
-                synth_cmd += f" -include_dirs {{{' '.join(self.platform.verilog_include_paths)}}}"
-            tcl.append(synth_cmd)
-        elif self._synth_mode == "yosys":
-            tcl.append("\n# Read Yosys EDIF\n")
-            tcl.append(f"read_edif {self._build_name}.edif")
-            tcl.append(f"link_design -top {self._build_name} -part {self.platform.device}")
-        else:
-            raise OSError(f"Unknown synthesis mode! {self._synth_mode}")
-        tcl.append("\n# Synthesis report\n")
-        tcl.append(f"report_timing_summary -file {self._build_name}_timing_synth.rpt")
-        tcl.append(f"report_utilization -hierarchical -file {self._build_name}_utilization_hierarchical_synth.rpt")
-        tcl.append(f"report_utilization -file {self._build_name}_utilization_synth.rpt")
-        tcl.append(f"write_checkpoint -force {self._build_name}_synth.dcp")
-
-        # Add pre-optimize commands
-        tcl.append("\n# Add pre-optimize commands\n")
-        tcl.extend(c.format(build_name=self._build_name) for c in self.pre_optimize_commands.resolve(self._vns))
-
-        # Optimize
-        tcl.append("\n# Optimize design\n")
-        tcl.append(f"opt_design -directive {self.vivado_opt_directive}")
-
-        # Incremental implementation
-        if self.incremental_implementation:
-            tcl.append("\n# Read design checkpoint\n")
-            tcl.append(f"read_checkpoint -incremental {self._build_name}_route.dcp")
-
-        # Add pre-placement commands
-        tcl.append("\n# Add pre-placement commands\n")
-        tcl.extend(c.format(build_name=self._build_name) for c in self.pre_placement_commands.resolve(self._vns))
-
-        # Placement
-        tcl.append("\n# Placement\n")
-        tcl.append(f"place_design -directive {self.vivado_place_directive}")
-        if self.vivado_post_place_phys_opt_directive:
-            tcl.append(f"phys_opt_design -directive {self.vivado_post_place_phys_opt_directive}")
-        tcl.append("\n# Placement report\n")
-        tcl.append(f"report_utilization -hierarchical -file {self._build_name}_utilization_hierarchical_place.rpt")
-        tcl.append(f"report_utilization -file {self._build_name}_utilization_place.rpt")
-        tcl.append(f"report_io -file {self._build_name}_io.rpt")
-        tcl.append(f"report_control_sets -verbose -file {self._build_name}_control_sets.rpt")
-        tcl.append(f"report_clock_utilization -file {self._build_name}_clock_utilization.rpt")
-        tcl.append(f"write_checkpoint -force {self._build_name}_place.dcp")
-
-        # Add pre-routing commands
-        tcl.append("\n# Add pre-routing commands\n")
-        tcl.extend(c.format(build_name=self._build_name) for c in self.pre_routing_commands.resolve(self._vns))
-
-        # Routing
-        tcl.append("\n# Routing\n")
-        tcl.append(f"route_design -directive {self.vivado_route_directive}")
-        tcl.append(f"phys_opt_design -directive {self.vivado_post_route_phys_opt_directive}")
-        tcl.append(f"write_checkpoint -force {self._build_name}_route.dcp")
-        tcl.append("\n# Routing report\n")
-        tcl.append("report_timing_summary -no_header -no_detailed_paths")
-        tcl.append(f"report_route_status -file {self._build_name}_route_status.rpt")
-        tcl.append(f"report_drc -file {self._build_name}_drc.rpt")
-        tcl.append(f"report_timing_summary -datasheet -max_paths 10 -file {self._build_name}_timing.rpt")
-        tcl.append(f"report_power -file {self._build_name}_power.rpt")
-
-        # Bitstream generation
-        for bitstream_command in self.bitstream_commands:
-            tcl.append(bitstream_command.format(build_name=self._build_name))
-        tcl.append("\n# Bitstream generation\n")
-        tcl.append(f"write_bitstream -force {self._build_name}.bit ")
-
-        # Additional commands
-        for additional_command in self.additional_commands:
-            tcl.append(additional_command.format(build_name=self._build_name))
+        # Package
+        dir = os.path.abspath(os.getcwd())
+        tcl.append("\n# Package\n")
+        tcl.append("update_compile_order -fileset sources_1")
+        tcl.append(f"ipx::package_project -root_dir {dir}/ip_repo -vendor xilinx.com -library user -taxonomy /UserIP -import_files")
+        tcl.append("set_property vendor nettimelogic.com [ipx::current_core]")
+        tcl.append("set_property vendor_display_name {NetTimeLogic GmbH} [ipx::current_core]")
+        tcl.append("set_property company_url https://nettimelogic.com [ipx::current_core]")
+        tcl.append("set_property core_revision 2 [ipx::current_core]")
+        tcl.append("ipx::create_xgui_files [ipx::current_core]")
+        tcl.append("ipx::update_checksums [ipx::current_core]")
+        tcl.append("ipx::check_integrity [ipx::current_core]")
+        tcl.append("ipx::save_core [ipx::current_core]")
+        tcl.append(f"set_property  ip_repo_paths  {dir}/ip_repo [current_project]")
+        tcl.append("update_ip_catalog")
 
         # Quit
         tcl.append("\n# End\n")

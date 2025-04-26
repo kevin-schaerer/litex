@@ -59,9 +59,6 @@ static void boot_sequence(void)
 	if (serialboot() == 0)
 		return;
 #endif
-#ifdef FLASH_BOOT_ADDRESS
-	flashboot();
-#endif
 #ifdef ROM_BOOT_ADDRESS
 	romboot();
 #endif
@@ -76,6 +73,9 @@ static void boot_sequence(void)
 	eth_mode();
 #endif
 	netboot(0, NULL);
+#endif
+#ifdef FLASH_BOOT_ADDRESS
+	flashboot();
 #endif
 	printf("No boot medium found\n");
 }
