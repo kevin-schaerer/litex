@@ -54,6 +54,8 @@ def _format_xdc(signame, resname, *constraints):
 
 
 def _build_xdc(named_sc, named_pc):
+    r = ""
+    """
     r = _xdc_separator("IO constraints")
     for sig, pins, others, resname in named_sc:
         if len(pins) > 1:
@@ -63,9 +65,10 @@ def _build_xdc(named_sc, named_pc):
             r += _format_xdc(sig, resname, Pins(pins[0]), *others)
         else:
             r += _format_xdc(sig, resname, *others)
+    """
     if named_pc:
-        r += _xdc_separator("Design constraints")
-        r += "\n" + "\n\n".join(named_pc)
+        #r += _xdc_separator("Design constraints")
+        r += "\n" + "\n\n".join(named_pc[1:])
     return r
 
 # XilinxVivadoToolchain ----------------------------------------------------------------------------
@@ -311,11 +314,54 @@ class XilinxVivadoToolchain(GenericToolchain):
         dir = os.path.abspath(os.getcwd())
         tcl.append("\n# Package\n")
         tcl.append("update_compile_order -fileset sources_1")
-        tcl.append(f"ipx::package_project -root_dir {dir}/ip_repo -vendor xilinx.com -library user -taxonomy /UserIP -import_files")
-        tcl.append("set_property vendor nettimelogic.com [ipx::current_core]")
+        tcl.append(f"ipx::package_project -root_dir {dir}/ip_repo -vendor nettimelogic.com -library user -taxonomy /UserIP -import_files")
         tcl.append("set_property vendor_display_name {NetTimeLogic GmbH} [ipx::current_core]")
         tcl.append("set_property company_url https://nettimelogic.com [ipx::current_core]")
         tcl.append("set_property core_revision 2 [ipx::current_core]")
+
+        tcl.append(f"file copy -force {dir}/{self._build_name}_mem.init ./ip_repo/src/{self._build_name}_mem.init")
+        tcl.append(f"file copy -force {dir}/{self._build_name}_rom.init ./ip_repo/src/{self._build_name}_rom.init")
+        tcl.append(f"file copy -force {dir}/{self._build_name}_sram.init ./ip_repo/src/{self._build_name}_sram.init")
+        tcl.append(f"file copy -force {dir}/{self._build_name}.xdc ./ip_repo/src/{self._build_name}.xdc")
+
+        tcl.append(f"set new_files [list ./src/{self._build_name}_mem.init ./src/{self._build_name}_rom.init ./src/{self._build_name}_sram.init]")
+        tcl.append("set file_group_synth [ipx::get_file_groups xilinx_anylanguagesynthesis]")
+        tcl.append("set file_group_sim [ipx::get_file_groups xilinx_anylanguagebehavioralsimulation]")
+        tcl.append("set data_file_objs {}")
+        tcl.append("foreach f $new_files {")
+        tcl.append("    lappend data_file_objs $f")
+        tcl.append("}")
+        tcl.append("set current_files_synth {}")
+        tcl.append("foreach f [ipx::get_files -of_objects $file_group_synth] {")
+        tcl.append("    lappend current_files_synth [get_property name $f]")
+        tcl.append("}")
+        tcl.append("set current_files_sim {}")
+        tcl.append("foreach f [ipx::get_files -of_objects $file_group_sim] {")
+        tcl.append("    lappend current_files_sim [get_property name $f]")
+        tcl.append("}")
+        tcl.append("foreach f [ipx::get_files -of_objects $file_group_synth] {")
+        tcl.append("    ipx::remove_file [get_property name $f] $file_group_synth")
+        tcl.append("}")
+        tcl.append("foreach f [ipx::get_files -of_objects $file_group_sim] {")
+        tcl.append("    ipx::remove_file [get_property name $f] $file_group_sim")
+        tcl.append("}")
+        
+        tcl.append(f"set file_obj [ipx::add_file ./src/{self._build_name}.xdc $file_group_synth]")
+        tcl.append("set_property type XDC $file_obj")
+        
+        tcl.append("foreach f $data_file_objs {")
+        tcl.append("    set fobj_synth [ipx::add_file $f $file_group_synth]")
+        tcl.append("    set fobj_sim [ipx::add_file $f $file_group_sim]")
+        tcl.append("    set_property type Data $fobj_synth")
+        tcl.append("    set_property type Data $fobj_sim")
+        tcl.append("}")
+        tcl.append("foreach f $current_files_synth {")
+        tcl.append("    ipx::add_file $f $file_group_synth")
+        tcl.append("}")
+        tcl.append("foreach f $current_files_sim {")
+        tcl.append("    ipx::add_file $f $file_group_sim")
+        tcl.append("}")
+
         tcl.append("ipx::create_xgui_files [ipx::current_core]")
         tcl.append("ipx::update_checksums [ipx::current_core]")
         tcl.append("ipx::check_integrity [ipx::current_core]")
