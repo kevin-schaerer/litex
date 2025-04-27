@@ -115,7 +115,7 @@ class XilinxVivadoToolchain(GenericToolchain):
 
     def finalize(self):
         # Convert clocks and false path to platform commands
-        self._build_clock_constraints()
+        #self._build_clock_constraints()
         self._build_false_path_constraints()
 
     def build(self, platform, fragment,
@@ -214,6 +214,7 @@ class XilinxVivadoToolchain(GenericToolchain):
             "-of_objects [get_cells -hierarchical -filter {{ars_ff2 == TRUE}}]]"
         )
 
+        """
         # Add false paths between asynchronous clock domains.
         def get_clk_type(clk):
             return {
@@ -240,6 +241,7 @@ class XilinxVivadoToolchain(GenericToolchain):
                 _from = _from if not isinstance(_from, str) else None,
                 _to   = _to   if not isinstance(_to, str)   else None,
             )
+        """
 
         # Clear false path constraints after generation.
         self.false_paths.clear()
