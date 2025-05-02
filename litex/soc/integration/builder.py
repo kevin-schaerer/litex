@@ -353,8 +353,9 @@ class Builder:
 
         # Copy Sources to Gateware directory (Optional).
         for i, (f, language, library, *copy) in enumerate(self.soc.platform.sources):
-            shutil.copy(f, self.gateware_dir)
-            f = os.path.basename(f)
+            if len(copy) and copy[0]:
+                shutil.copy(f, self.gateware_dir)
+                f = os.path.basename(f)
             self.soc.platform.sources[i] = (f, language, library)
 
         # Create Software directory.

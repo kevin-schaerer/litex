@@ -9,6 +9,7 @@ import subprocess
 import sys
 import math
 from shutil import which
+import shutil
 
 from migen.fhdl.structure import _Fragment
 
@@ -274,10 +275,17 @@ class XilinxVivadoToolchain(GenericToolchain):
             tcl.append("set_property XPM_LIBRARIES {XPM_CDC XPM_MEMORY} [current_project]")
 
         # Add sources (when Vivado used for synthesis)
+        dir = os.path.abspath(os.getcwd())
         if self._synth_mode == "vivado":
             tcl.append("\n# Add Sources\n")
             # "-include_dirs {}" crashes Vivado 2016.4
             for filename, language, library, *copy in self.platform.sources:
+                path = os.path.join(dir, os.path.basename(filename))
+                if path != filename:
+                    if os.path.exists(path):
+                        os.remove(path)
+                    shutil.copy(filename, dir)
+                filename = path
                 filename_tcl = "{" + filename + "}"
                 if (language == "systemverilog"):
                     tcl.append(f"read_verilog -v {filename_tcl}")
