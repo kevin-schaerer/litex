@@ -12,6 +12,7 @@
 // This file is Copyright (c) 2016 Tim 'mithro' Ansell <mithro@mithis.com>
 // This file is Copyright (c) 2020 Franck Jullien <franck.jullien@gmail.com>
 // This file is Copyright (c) 2020 Antmicro <www.antmicro.com>
+// This file is Copyright (c) 2025 Kevin Schaerer <kevin.schaerer@nettimelogic.com>
 
 // License: BSD
 
@@ -106,12 +107,14 @@ __attribute__((__used__)) int main(int i, char **c)
 
 #ifndef CONFIG_BIOS_NO_PROMPT
 	printf("\n");
-	printf("\e[1m        __   _ __      _  __\e[0m\n");
-	printf("\e[1m       / /  (_) /____ | |/_/\e[0m\n");
-	printf("\e[1m      / /__/ / __/ -_)>  <\e[0m\n");
-	printf("\e[1m     /____/_/\\__/\\__/_/|_|\e[0m\n");
-	printf("\e[1m   Build your hardware, easily!\e[0m\n");
+	printf("\e[1m   _    _ _______      ________      _____\e[0m\n");
+	printf("\e[1m  | |  | |_   _\\ \\    / /  ____|    / ____|\e[0m\n");
+	printf("\e[1m  | |__| | | |  \\ \\  / /| |__ _____| (___\e[0m\n");
+	printf("\e[1m  |  __  | | |   \\ \\/ / |  __|______\\___ \\\e[0m\n");
+	printf("\e[1m  | |  | |_| |_   \\  /  | |____     ____) |\e[0m\n");
+	printf("\e[1m  |_|  |_|_____|   \\/   |______|   |_____/\e[0m\n");
 	printf("\n");
+	printf(" (c) Copyright 2025 NetTimeLogic GmbH\n");
 	printf(" (c) Copyright 2012-2024 Enjoy-Digital\n");
 	printf(" (c) Copyright 2007-2015 M-Labs\n");
 	printf("\n");
