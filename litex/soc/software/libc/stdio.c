@@ -6,7 +6,6 @@
 
 #include <stdio.h>
 
-#include <libbase/console.h>
 #include <libbase/uart.h>
 
 #include <generated/csr.h>

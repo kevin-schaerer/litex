@@ -52,12 +52,9 @@ soc_software_packages = [
     "libbase",
 
     # LiteX Ecosystem cores.
-    "libfatfs",
     "liblitespi",
     "liblitedram",
     "libliteeth",
-    "liblitesdcard",
-    "liblitesata",
 ]
 
 # Builder ------------------------------------------------------------------------------------------

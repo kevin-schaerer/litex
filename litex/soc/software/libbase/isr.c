@@ -16,6 +16,8 @@ void isr_dec(void);
 void isr(void);
 #endif
 
+void plic_init(void);
+
 #ifdef CONFIG_CPU_HAS_INTERRUPT
 
 /*******************************************************/

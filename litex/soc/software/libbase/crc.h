@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-unsigned short crc16(const unsigned char *buffer, int len);
 unsigned int crc32(const unsigned char *buffer, unsigned int len);
 
 #ifdef __cplusplus

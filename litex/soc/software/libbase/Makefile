@@ -2,17 +2,13 @@ include ../include/generated/variables.mak
 include $(SOC_DIRECTORY)/software/common.mak
 
 OBJECTS =  \
-	crc16.o    \
 	crc32.o    \
-	console.o  \
 	system.o   \
 	progress.o \
 	memtest.o  \
 	uart.o     \
 	spiflash.o \
-	i2c.o \
-	isr.o \
-	hyperram.o
+	isr.o
 
 all: libbase.a
 
