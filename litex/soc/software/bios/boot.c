@@ -85,12 +85,12 @@ static unsigned int check_image_in_flash(unsigned int base_address)
 }
 
 #if defined(MAIN_RAM_BASE) && defined(FLASH_BOOT_ADDRESS)
-static int copy_image_from_flash_to_ram(unsigned int flash_address, unsigned long ram_address, uint32_t length)
+static int copy_image_from_flash_to_ram(unsigned int flash_address, unsigned long ram_address)
 {
-	//uint32_t length;
+	uint32_t length;
 	uint32_t offset;
 
-	//length = check_image_in_flash(flash_address);
+	length = check_image_in_flash(flash_address);
 	if(length > 0) {
 		printf("Copying 0x%08x to 0x%08lx (%ld bytes)...\n", flash_address, ram_address, length);
 		offset = 0;
@@ -112,32 +112,34 @@ static int copy_image_from_flash_to_ram(unsigned int flash_address, unsigned lon
 }
 #endif
 
-#define KERNEL_IMAGE_OFFSET 0x0
-#define ROOTFS_IMAGE_OFFSET 0x600000
-#define OPENSBI_IMAGE_OFFSET 0xB00000
-#define DTB_IMAGE_OFFSET 0xB50000
+#define UBOOT_IMAGE_OFFSET 0x430000
+#define KERNEL_IMAGE_OFFSET 0x500000
+#define KERNEL_DTB_OFFSET 0x4E0000
+#define UBOOT_DTB_OFFSET 0x4F0000
+#define INITRD_IMAGE_OFFSET 0x800000
+#define OPENSBI_IMAGE_OFFSET 0x400000
 
 void flashboot(void)
 {
-	//uint32_t length;
+	uint32_t length;
 	uint32_t result;
 
-	//length = check_image_in_flash(FLASH_BOOT_ADDRESS);
-	//if(!length)
-	//	return;
-
-	/* When Main RAM is available, copy the code from the Flash and execute it
-	from Main RAM since faster */
-	result = copy_image_from_flash_to_ram(FLASH_BOOT_ADDRESS + KERNEL_IMAGE_OFFSET, 0x40000000, 5724296);
+	result = copy_image_from_flash_to_ram(FLASH_BOOT_ADDRESS + UBOOT_IMAGE_OFFSET, 0x40040000);
 	if(!result)
 		return;
-	result = copy_image_from_flash_to_ram(FLASH_BOOT_ADDRESS + ROOTFS_IMAGE_OFFSET, 0x41000000, 4925932);
+	result = copy_image_from_flash_to_ram(FLASH_BOOT_ADDRESS + KERNEL_IMAGE_OFFSET, 0x40000000);
 	if(!result)
 		return;
-	result = copy_image_from_flash_to_ram(FLASH_BOOT_ADDRESS + OPENSBI_IMAGE_OFFSET, 0x40f00000, 263652);
+	result = copy_image_from_flash_to_ram(FLASH_BOOT_ADDRESS + KERNEL_DTB_OFFSET, 0x40ee0000);
 	if(!result)
 		return;
-	result = copy_image_from_flash_to_ram(FLASH_BOOT_ADDRESS + DTB_IMAGE_OFFSET, 0x40ef0000, 3199);
+	result = copy_image_from_flash_to_ram(FLASH_BOOT_ADDRESS + UBOOT_DTB_OFFSET, 0x40ef0000);
+	if(!result)
+		return;
+	result = copy_image_from_flash_to_ram(FLASH_BOOT_ADDRESS + INITRD_IMAGE_OFFSET, 0x41000000);
+	if(!result)
+		return;
+	result = copy_image_from_flash_to_ram(FLASH_BOOT_ADDRESS + OPENSBI_IMAGE_OFFSET, 0x40f00000);
 	if(!result)
 		return;
 	boot(0, 0, 0, 0x40f00000);

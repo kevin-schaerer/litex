@@ -487,7 +487,7 @@ class VexRiscvSMP(CPU):
             soc.csr.add("timer0", n=3)
 
             # Add OpenSBI region.
-            soc.bus.add_region("opensbi", SoCRegion(origin=self.mem_map["main_ram"] + 0x00f0_0000, size=0x8_0000, cached=True, linker=True))
+            soc.bus.add_region("opensbi", SoCRegion(origin=self.mem_map["main_ram"] + 0x00f0_0000, size=0x3_0000, cached=True, linker=True))
 
         # Define number of CPUs
         soc.add_config("CPU_COUNT", VexRiscvSMP.cpu_count)
