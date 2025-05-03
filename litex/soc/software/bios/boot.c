@@ -112,7 +112,7 @@ static int copy_image_from_flash_to_ram(unsigned int flash_address, unsigned lon
 }
 #endif
 
-#define UBOOT_IMAGE_OFFSET 0x430000
+#define UBOOT_IMAGE_OFFSET 0x460000
 #define KERNEL_IMAGE_OFFSET 0x500000
 #define KERNEL_DTB_OFFSET 0x4E0000
 #define UBOOT_DTB_OFFSET 0x4F0000
