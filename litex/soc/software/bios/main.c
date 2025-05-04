@@ -23,7 +23,6 @@
 #include <irq.h>
 
 #include "boot.h"
-#include "readline.h"
 #include "helpers.h"
 
 #include <generated/csr.h>
@@ -47,7 +46,7 @@
 #ifndef CONFIG_BIOS_NO_BOOT
 static void boot_sequence(void)
 {
-#ifdef FLASH_BOOT_ADDRESS
+#if defined(SPIFLASH_BASE)
 	flashboot();
 #endif
 	printf("No boot medium found\n");

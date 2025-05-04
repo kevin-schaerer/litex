@@ -4,7 +4,6 @@ include $(SOC_DIRECTORY)/software/common.mak
 OBJECTS =  \
 	crc32.o    \
 	system.o   \
-	progress.o \
 	memtest.o  \
 	uart.o     \
 	spiflash.o \

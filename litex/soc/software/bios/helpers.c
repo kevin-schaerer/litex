@@ -7,7 +7,6 @@
 
 #include <libbase/crc.h>
 
-#include "readline.h"
 #include "helpers.h"
 #include "init.h"
 
