@@ -144,8 +144,8 @@ void flashboot(void)
 #endif
 
 	for (uint32_t i = 0; i < num_mappings; i++) {
-		src_addr = MMPTR((unsigned int *) SPIFLASH_BASE + FLASH_MAPPING_OFFSET + offset);
-		dst_addr = MMPTR((unsigned int *) SPIFLASH_BASE + FLASH_MAPPING_OFFSET + offset + 4);
+		src_addr = MMPTR((unsigned int) SPIFLASH_BASE + FLASH_MAPPING_OFFSET + offset);
+		dst_addr = MMPTR((unsigned int) SPIFLASH_BASE + FLASH_MAPPING_OFFSET + offset + 4);
 		if (src_addr == 0) {
 			printf("Warning: no more mappings\n");
 			break;
