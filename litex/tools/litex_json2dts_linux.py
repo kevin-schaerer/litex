@@ -83,7 +83,7 @@ def generate_dts(d, initrd_start=None, initrd_size=None, initrd=None, root_devic
         chosen {{
             bootargs = "{console} {rootfs}{ip}";""".format(
     console = "console=liteuart earlycon=liteuart,0x{:x}".format(d["csr_bases"]["uart"]),
-    rootfs  = "root=initramfs",
+    rootfs  = "root=tmpfs",
     ip      = get_eth_ip_config())
 
     if initrd_enabled is True:
