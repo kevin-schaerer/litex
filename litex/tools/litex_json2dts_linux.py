@@ -14,7 +14,7 @@ import argparse
 
 from litex.gen.common import KILOBYTE, MEGABYTE
 
-def generate_dts(d, initrd_start=None, initrd_size=None, initrd=None, root_device=None, polling=False, ext_rootfs=False):
+def generate_dts(d, initrd_start=None, initrd_size=None, initrd=None, root_device=None, polling=False):
     aliases = {}
 
     # CPU Parameters -------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ def generate_dts(d, initrd_start=None, initrd_size=None, initrd=None, root_devic
         chosen {{
             bootargs = "{console} {rootfs}{ip}";""".format(
     console = "console=liteuart earlycon=liteuart,0x{:x}".format(d["csr_bases"]["uart"]),
-    rootfs  = "rootwait root=/dev/{}".format(root_device) if ext_rootfs else "",
+    rootfs  = "root=/dev/{}".format(root_device),
     ip      = get_eth_ip_config())
 
     if initrd_enabled is True:
