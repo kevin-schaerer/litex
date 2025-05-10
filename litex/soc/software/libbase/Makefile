@@ -6,7 +6,6 @@ OBJECTS =  \
 	system.o   \
 	memtest.o  \
 	uart.o     \
-	spiflash.o \
 	isr.o
 
 all: libbase.a

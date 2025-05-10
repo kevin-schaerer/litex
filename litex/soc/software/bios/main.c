@@ -33,7 +33,6 @@
 #include <libbase/crc.h>
 #include <libbase/memtest.h>
 
-#include <libbase/spiflash.h>
 #include <libbase/uart.h>
 
 #include <liblitedram/sdram.h>
